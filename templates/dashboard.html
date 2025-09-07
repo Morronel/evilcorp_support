@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="grid">
+  <div class="card">
+    <h2>Support chat</h2>
+    <form method="post" action="{{ url_for('send_message') }}" id="message-form">
+      <label>Your message to EvilCorp Support</label>
+      <textarea name="content" rows="4" placeholder="Describe your issue." id="message-content"></textarea>
+      <button class="btn" type="button" id="send-button">Send</button>
+    </form>
+    <p class="muted">Heads up: EvilCorp Support auto-loads images to generate previews. 😉</p>
+    <div class="list" id="messages-container">
+      {% for m in messages %}
+      <div class="list-item" data-message-id="{{ m.id }}">
+        <div class="meta">
+          <strong>{{ m.sender.username }}</strong> • {{ m.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+        </div>
+        <div class="content">
+          {% if m.sender.username == 'support' %}
+            {{ m.content }}
+          {% else %}
+            {{ m.content|safe }}
+          {% endif %}
+        </div>
+      </div>
+      {% else %}
+      <div class="muted" id="no-messages">No messages yet.</div>
+      {% endfor %}
+    </div>
+    <div id="typing-indicator" style="display: none; padding: 10px; font-style: italic; color: #666;">
+      💬 Support is typing...
+    </div>
+  </div>
+  <div class="card">
+    <h2>Profile</h2>
+    <p>You are logged in as <strong>{{ current_user.username }}</strong> (role: {{ current_user.role }}).</p>
+    <h3>Change password</h3>
+    <form method="get" action="{{ url_for('change_password_csrf') }}" class="inline-form">
+      <input name="new" type="password" placeholder="New password">
+      <input name="confirm" type="password" placeholder="Confirm password">
+      <button class="btn btn-outline" type="submit">Update</button>
+    </form>
+  </div>
+</div>
+
+<script>
+let lastMessageId = {{ messages[-1].id if messages else 0 }};
+let pollInterval;
+
+function startPolling() {
+    pollInterval = setInterval(checkForUpdates, 1500); // Poll every 1.5 seconds
+}
+
+function checkForUpdates() {
+    fetch(`/api/messages?last_message_id=${lastMessageId}`)
+        .then(response => response.json())
+        .then(data => {
+            // Update typing indicator
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (data.support_typing) {
+                typingIndicator.style.display = 'block';
+            } else {
+                typingIndicator.style.display = 'none';
+            }
+
+            // Add new messages
+            if (data.messages && data.messages.length > 0) {
+                const container = document.getElementById('messages-container');
+                const noMessages = document.getElementById('no-messages');
+                
+                // Remove "no messages" placeholder if it exists
+                if (noMessages) {
+                    noMessages.remove();
+                }
+
+                data.messages.forEach(message => {
+                    const messageElement = createMessageElement(message);
+                    container.appendChild(messageElement);
+                });
+
+                // Update last message ID
+                lastMessageId = data.last_message_id;
+
+                // Scroll to bottom
+                container.scrollTop = container.scrollHeight;
+            }
+        })
+        .catch(error => {
+            console.error('Error polling for updates:', error);
+        });
+}
+
+function createMessageElement(message) {
+    const div = document.createElement('div');
+    div.className = 'list-item';
+    div.setAttribute('data-message-id', message.id);
+    
+    const content = message.sender === 'support' ? message.content : message.content; // Both safe since it's from server
+    
+    div.innerHTML = `
+        <div class="meta">
+            <strong>${message.sender}</strong> • ${message.created_at}
+        </div>
+        <div class="content">${content}</div>
+    `;
+    
+    return div;
+}
+
+// Handle message sending with button click to avoid any form submission issues
+let isSending = false; // Prevent double sending
+
+document.addEventListener('DOMContentLoaded', function() {
+    const sendButton = document.getElementById('send-button');
+    const messageContent = document.getElementById('message-content');
+    const messageForm = document.getElementById('message-form');
+    
+    function sendMessage() {
+        // Prevent double sending
+        if (isSending) {
+            console.log('Already sending, ignoring duplicate request');
+            return;
+        }
+        
+        const content = messageContent.value.trim();
+        
+        if (!content) {
+            alert('Message cannot be empty.');
+            return;
+        }
+
+        console.log('Sending message via button click'); // Debug
+        isSending = true;
+
+        // Disable button and show loading state
+        sendButton.disabled = true;
+        sendButton.textContent = 'Sending...';
+
+        // Clear the form immediately
+        messageContent.value = '';
+
+        // Create form data
+        const formData = new FormData();
+        formData.append('content', content);
+
+        // Send to server
+        fetch(messageForm.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Message sent successfully via AJAX');
+                // Trigger an immediate check for updates to show the message faster
+                setTimeout(checkForUpdates, 100);
+            } else {
+                console.error('Failed to send message');
+                // Restore the message if sending failed
+                messageContent.value = content;
+            }
+        })
+        .catch(error => {
+            console.error('Error sending message:', error);
+            // Restore the message if sending failed
+            messageContent.value = content;
+        })
+        .finally(() => {
+            // Reset sending state and button
+            isSending = false;
+            sendButton.disabled = false;
+            sendButton.textContent = 'Send';
+        });
+    }
+    
+    // Handle button click
+    if (sendButton) {
+        sendButton.addEventListener('click', sendMessage);
+    }
+    
+    // Handle Enter key in textarea (optional)
+    if (messageContent) {
+        messageContent.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    }
+    
+    // Completely disable form submission
+    if (messageForm) {
+        messageForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Form submission blocked');
+            return false;
+        });
+    }
+    
+    // Start polling
+    startPolling();
+    
+    // Scroll to bottom of messages on page load
+    const messagesContainer = document.getElementById('messages-container');
+    if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+});
+
+// Stop polling when page is about to unload
+window.addEventListener('beforeunload', function() {
+    if (pollInterval) {
+        clearInterval(pollInterval);
+    }
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>All tickets</h2>
+  <div class="tickets">
+    {% for t in tickets %}
+      <div class="ticket-row">
+        <span class="id">#{{ t.id }}</span>
+        <a class="title" href="{{ url_for('ticket_detail', ticket_uuid=t.uuid) }}">{{ t.title }}</a>
+        <span class="date">{{ t.created_at.strftime('%Y-%m-%d') }}</span>
+      </div>
+    {% endfor %}
+  </div>
+  <div class="pager">
+    {% if page > 1 %}<a class="btn btn-outline" href="{{ url_for('support_tickets', page=page-1) }}">Prev</a>{% endif %}
+    <span class="muted">Page {{ page }} / {{ last_page }}</span>
+    {% if page < last_page %}<a class="btn btn-outline" href="{{ url_for('support_tickets', page=page+1) }}">Next</a>{% endif %}
+  </div>
+  <p class="muted small">Severity is visible only inside each ticket – bring your crawler. 🔎</p>
+</div>
+{% endblock %}

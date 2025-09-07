@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Error {{ code }}</h2>
+  <p class="muted">{{ message }}</p>
+  <a class="btn" href="{{ url_for('index') }}">Home</a>
+</div>
+{% endblock %}

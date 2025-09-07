@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="grid">
+  <!-- Sticky Notes Panel -->
+  <div class="card sticky-notes-panel">
+    <h2>🗒️ Desk Notes</h2>
+    <div class="sticky-notes">
+      <div class="sticky-note note-yellow">
+        <p><strong>REMINDER:</strong></p>
+        <p><strong>Check critical tickets first. Some contain important information.</strong></p>
+        <p class="note-signature"><strong>- Sarah</strong></p>
+      </div>
+      <div class="sticky-note note-pink">
+        <p><strong>TODO:</strong></p>
+        <p><strong>System search is broken again 😤</strong></p>
+        <p><strong>Manual review of critical tickets needed until IT fixes it.</strong></p>
+        <p class="note-signature"><strong>- Mike</strong></p>
+      </div>
+      <div class="sticky-note note-blue">
+        <p><strong>IMPORTANT:</strong></p>
+        <p><strong>If I forgot the password, and you reset it for me, that's a CRITICAL! I CAN'T WAIT FOR ALL DAY!</strong></p>
+        <p class="note-signature"><strong>- Admin</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Support dashboard</h2>
+    <p>Total tickets: <strong>{{ total }}</strong></p>
+    <p><a class="btn" href="{{ url_for('support_tickets') }}">View all tickets</a></p>
+    <p class="muted small">💡 <em>Tip: Look for patterns and follow ticket references to find what you need.</em></p>
+  </div>
+
+  <div class="card">
+    <h2>Recent activity</h2>
+    <div class="list">
+      {% for t in recent %}
+      <div class="list-item"><a href="{{ url_for('ticket_detail', ticket_uuid=t.uuid) }}">{{ t.title }}</a> <span class="meta">#{{ t.id }}</span></div>
+      {% else %}<div class="muted">No tickets.</div>{% endfor %}
+    </div>
+    <p><a class="btn btn-outline" href="{{ url_for('support_chat') }}">Open chat viewer</a></p>
+    <p class="muted small">Chat viewer renders message HTML to help agents preview content.</p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1 class="neon">Welcome to <span>EvilCorp Tech Support</span></h1>
+  <p class="tagline">Shiny, pink–violet, neon synthwave vibes. Log in to start your ticket.</p>
+  <div class="cta">
+    <a class="btn" href="{{ url_for('login') }}">Log In</a>
+    <a class="btn btn-outline" href="{{ url_for('register') }}">Register</a>
+  </div>
+  <p style="margin-top: 30px; opacity: 0.7;">
+    <a href="{{ url_for('about') }}" style="color: var(--cyan); text-decoration: none;">Learn more about our vibecoders →</a>
+  </p>
+</section>
+{% endblock %}

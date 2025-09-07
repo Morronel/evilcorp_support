@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Chat viewer (Support)</h2>
+  <div class="list">
+    {% for m in messages %}
+    <div class="list-item">
+      <div class="meta">from {{ m.sender.username }} @ {{ m.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+      <!-- Intentionally unsafe: render HTML to allow <img> previews -->
+      <div class="content">{{ m.content|safe }}</div>
+    </div>
+    {% else %}<div class="muted">No messages yet.</div>{% endfor %}
+  </div>
+  <p class="muted small">(Intentionally unsafe) HTML is rendered to preview images/links.</p>
+</div>
+{% endblock %}

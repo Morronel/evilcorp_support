@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="notice-card">
+  <div style="text-align: center; margin-bottom: 30px;">
+    <img src="{{ url_for('static', filename='binary_xor.png') }}" alt="Binary XOR Logo" style="max-width: 200px; height: auto; filter: drop-shadow(0 0 12px rgba(0,240,255,.6));">
+  </div>
+  
+  <h1 style="text-align: center; margin-bottom: 30px;">About EvilCorp Support Portal</h1>
+  
+  <div style="max-width: 600px; margin: 0 auto; line-height: 1.8; font-size: 16px;">
+    <p>This cutting-edge support portal was crafted by <strong>specially trained binary XOR vibecoders</strong> who understand the quantum mechanics of customer satisfaction and the deep algorithms of human empathy.</p>
+    
+    <p>Our vibecoders don't just write code – they synthesize digital experiences using advanced cybernetic methodologies and neural-linguistic programming patterns optimized for maximum user engagement.</p>
+    
+    <p>Each line of code has been carefully XOR-encrypted with positive intentions and compiled using proprietary vibe-optimization algorithms that ensure peak performance in even the most challenging support scenarios.</p>
+    
+    <p><em>Binary XOR Technologies™</em> - Where mathematics meets mindfulness, and support tickets achieve enlightenment.</p>
+    
+    <div style="text-align: center; margin-top: 40px; padding: 20px; background: rgba(122,92,255,.1); border-radius: 12px; border-left: 4px solid var(--violet);">
+      <p style="margin: 0; font-style: italic; color: var(--cyan);">
+        "In a world of boolean logic, we choose to XOR with compassion."
+      </p>
+      <p style="margin: 8px 0 0 0; font-size: 14px; opacity: 0.8;">
+        - Chief Vibecoder, Binary XOR Technologies, <a href="https://t.me/binary_xor">https://t.me/binary_xor</a>
+      </p>
+    </div>
+  </div>
+  
+  <div style="text-align: center; margin-top: 40px;">
+    <a class="btn" href="{{ url_for('index') }}">Back to Portal</a>
+    {% if current_user %}
+      <a class="btn btn-outline" href="{{ url_for('dashboard') }}">Dashboard</a>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+.notice-card h1 {
+  color: var(--cyan);
+  text-shadow: var(--glow-hard);
+  font-family: Orbitron, sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.notice-card p {
+  margin-bottom: 20px;
+  color: var(--white);
+}
+
+.notice-card strong {
+  color: var(--pink);
+  text-shadow: 0 0 8px rgba(255,43,214,.5);
+}
+
+.notice-card em {
+  color: var(--violet);
+  font-weight: 600;
+}
+</style>
+{% endblock %}

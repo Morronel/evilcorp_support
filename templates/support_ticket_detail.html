@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Ticket #{{ ticket.id }} – {{ ticket.title }}</h2>
+  <p><strong>Severity:</strong> {{ ticket.severity|capitalize }} | <strong>Status:</strong> {{ ticket.status }}</p>
+  <pre class="pre">{{ ticket.body }}</pre>
+</div>
+{% endblock %}
